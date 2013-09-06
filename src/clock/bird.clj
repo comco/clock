@@ -4,19 +4,12 @@
 
 (defn make-bird
   "Constructs a new bird."
-  ([species position velocity]
-   {:species species
-    :position position
+  ([position velocity]
+   {:position position
     :velocity velocity})
-  ([species position-x position-y velocity-x velocity-y]
-   (make-bird species 
-              (vect/make-vector position-x position-y)
+  ([position-x position-y velocity-x velocity-y]
+   (make-bird (vect/make-vector position-x position-y)
               (vect/make-vector velocity-x velocity-y))))
-
-(defn species
-  "Extracts the species of a bird."
-  [bird]
-  (bird :species))
 
 (defn position
   "Extracts the position of a bird."
