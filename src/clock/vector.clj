@@ -41,7 +41,7 @@
   [v]
   (math/sqrt (length-sqr v)))
 
-(defn displacement
+(defn between
   "Calculates the vector between two points."
   [u v]
   (minus v u))
@@ -49,7 +49,7 @@
 (defn distance
   "Calculated the distance between vectors."
   [u v]
-  (length (displacement u v)))
+  (length (between u v)))
 
 (defn center
   "Calculates the average of vectors."
@@ -59,5 +59,3 @@
         size  (count coll)]
     (make-vector (/ sum-x size)
                  (/ sum-y size))))
-
-
