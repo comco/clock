@@ -48,6 +48,12 @@
   (vt (+ (vt-dx v) (vt-dx w))
       (+ (vt-dy v) (vt-dy w))))
 
+(defn vt-scale
+  "Scales a vector by a number."
+  [v s]
+  (vt (* s (vt-dx v))
+      (* s (vt-dy v))))
+
 (defn vt-length
   "Calculates the length of a vector."
   [v]
@@ -73,12 +79,83 @@
         p-size (count ps)]
     (pt (/ x-sum p-size) (/ y-sum p-size))))
 
+; Birds.
+(defn bird
+  "Creates a new bird."
+  [species position velocity]
+  {:species species
+   :position position
+   :velocity velocity})
+
+(defn bird-species
+  "Extracts the species of a bird."
+  [b]
+  (b :species))
+
+(defn bird-position
+  "Extracts the position of a bird."
+  [b]
+  (b :position))
+
+(defn bird-velocity
+  "Extracts the velocity of a bird."
+  [b]
+  (b :velocity))
+
+(defn bird-neighbours
+  "Returns only birds within a given distance of a bird."
+  [bird flock distance]
+  (filter #(<= (pt-distance bird %) distance)))
+
+(defn bird-separation
+  "Calculates the force on a bird induced by the separation rule."
+  [bird flock distance]
+  (let [neighbours (bird-neighbours bird flock distance)
+        center (pt-center (map bird-position neighbours))]
+    (vt-between center (bird-position bird))))
+
+(defn bird-alignment
+  "Calculates the force on a bird induced by the alignment rule."
+  [bird flock distance]
+  (let [neighbours (bird-neighbours bird flock distance)
+        average-velocity (vt-average (map bird-velocity neighbours))]
+    (vt-between (bird-velocity bird) average-velocity)))
+
+(defn bird-cohesion
+  "Calculates the force on a bird induced by the cohesion rule."
+  [bird flock distance]
+  (let [neighbours (bird-neighbours bird flock distance)
+        center (pt-center (map bird-position neighbours))]
+    (vt-between (bird-position bird) center)))
+
+(defn move-bird
+  "Moves a bird."
+  [bird flock t
+   separation-distance
+   separation-coefficient
+   alignment-distance
+   alignment-coefficient
+   cohesion-distance
+   cohesion-coefficient]
+  (let [separation (vt-scale (bird-separation bird flock 
+                                              separation-distance)
+                             separation-coefficient)
+        alinment (vt-scale (bird-alignment bird flock
+                                           alignment-distance)
+                           alignment-coefficient)
+        cohesion (vt-scale (bird-alignment bird flock
+                                           cohesion-distance)
+                           cohesion-coefficient)]
+    (new-bird 
+
 (def birds [(pt 20 20)
             (pt 20 80)
             (pt 80 20)
             (pt 80 80)])
 
 (def world {:birds birds})
+
+
 
 (defn draw []
   (qc/background-float 0)
