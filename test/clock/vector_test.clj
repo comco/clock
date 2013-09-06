@@ -37,6 +37,10 @@
           v (make-vector 3 4)]
       (is (= (distance u v) 5))))
 
+  (testing "scale"
+    (let [v (make-vector 3 4)]
+      (is (having-coordinates? (scale v 2) [6 8]))))
+
   (testing "center"
     (let [coll [(make-vector 0 0)
                 (make-vector 0 8)

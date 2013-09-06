@@ -59,3 +59,9 @@
         size  (count coll)]
     (make-vector (/ sum-x size)
                  (/ sum-y size))))
+
+(defn scale
+  "Scales a vector."
+  [v s]
+  (make-vector (* s (x v))
+               (* s (y v))))
