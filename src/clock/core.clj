@@ -6,8 +6,11 @@
   (:use [clock.bird])
   (:gen-class))
 
+; World size.
 (def width 800)
 (def height 600)
+
+; Initial flock.
 (def flock (mapv (partial apply make-bird)
                      [[30.0 30.0 0.0 0.0 2.0 0.03]
                       [35.0 35.0 0.0 0.0 2.0 0.03]
@@ -41,13 +44,61 @@
     (qc/end-shape)
     (qc/pop-matrix))) 
 
-(defn draw-vertex [position]
-  (qc/vertex (position :x) (position :y)))
-
 (defn update-world []
   (let [old-flock (@world :flock)
-        new-flock (mapv #(worlds/move-bird % @world) old-flock)]
+        new-flock (doall (pmap #(worlds/move-bird % @world) old-flock))]
     (swap! world assoc :flock new-flock)))
+
+(defn settings-string []
+  "Retunrs a string with the current settings of the simulation."
+  (format 
+"separation: distance (keys 's'/'S') = %.2f, coefficient (keys = 'e'/'E') %.2f
+alignment: distance (keys 'a'/'A') = %.2f, coefficient (keys = 'l'/'L') = %.2f
+cohesiton: distance (keys 'c'/'C') = %.2f, coefficient (keys = 'o'/'O') = %.2f"
+          (@world :separation-distance)
+          (@world :separation-coeff)
+          (@world :alignment-distance)
+          (@world :alignment-coeff)
+          (@world :cohesion-distance)
+          (@world :cohesion-coeff)))
+
+(def valid-keys {\s {:key :separation-distance
+                     :amount -20.0}
+                 \S {:key :separation-distance 
+                     :amount +20.0}
+                 \e {:key :separation-coeff
+                     :amount -0.1}
+                 \E {:key :separation-coeff
+                     :amount +0.1}
+                 \a {:key :alignment-distance
+                     :amount -20.0}
+                 \A {:key :alignment-distance
+                     :amount +20.0}
+                 \l {:key :alignment-coeff
+                     :amount -0.1}
+                 \L {:key :alignment-coeff
+                     :amount +0.1}
+                 \c {:key :cohesion-distance
+                     :amount -20.0}
+                 \C {:key :cohesion-distance
+                     :amount +20.0}
+                 \o {:key :cohesion-coeff
+                     :amount -0.1}
+                 \O {:key :cohesion-coeff
+                     :amount +0.1}})
+
+(defn update-by-setting
+  "Updates a world setting by a given amount"
+  ([settings]
+   (let [old-value (@world (settings :key))
+         new-value (+ old-value (settings :amount))]
+     (swap! world assoc (settings :key) new-value))))
+
+(defn key-pressed []
+  (let [key-code (qc/raw-key)
+        setting (valid-keys key-code)]
+    (if setting
+      (update-by-setting setting))))
 
 (defn draw []
   (qc/background-float 0)
@@ -55,6 +106,8 @@
   (qc/stroke-weight 5)
   (doseq [bird (@world :flock)]
     (draw-bird bird))
+  (qc/text-size 12)
+  (qc/text (settings-string) 20 20)
   (qc/display-filter :invert)
   (update-world))
 
@@ -64,6 +117,7 @@
   (qc/fill 226)
   (qc/frame-rate 10))
 
+; Create a new bird
 (defn mouse-pressed []
   (let [x (+ 0.0 (qc/mouse-x))
         y (+ 0.0 (qc/mouse-y))
@@ -81,9 +135,10 @@
   [& args]
   ;; work around dangerous default behaviour in Clojure
   (alter-var-root #'*read-eval* (constantly false))
-  (qc/defsketch world-view
+  (qc/sketch
     :title "Clock"
     :setup setup
     :draw draw
     :mouse-pressed mouse-pressed
+    :key-pressed key-pressed
     :size [800 600]))
