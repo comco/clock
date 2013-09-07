@@ -4,8 +4,8 @@
 
 (defn having-coordinates?
   [v [expected-x expected-y]]
-  (and (= (x v) expected-x)
-       (= (y v) expected-y)))
+  (and (= (v :x) expected-x)
+       (= (v :y) expected-y)))
 
 (deftest vectors
   (testing "creation and acccess"
