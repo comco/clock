@@ -15,6 +15,7 @@
               max-speed max-force)))
 
 (defn update-bird-velocity
+  "Updates the bird velocity by a given acceleration."
   [bird acceleration]
   (assoc bird :velocity (vect/limit (vect/plus (bird :velocity) acceleration)
                                     (bird :max-speed))))
