@@ -18,6 +18,7 @@
                       [26.0 45.0 0.0 0.0 2.0 0.03]
                       [73.0 83.9 0.0 0.0 2.0 0.03]]))
 
+; The viewable world is an atom, containing the flock and parameters.
 (def world
   (atom {:width width
          :height height
@@ -96,12 +97,14 @@ birds: %d"
 
 ; Change the settings on a key press
 (defn key-pressed []
+  "Key press handler."
   (let [key-code (qc/raw-key)
         setting (valid-keys key-code)]
     (if setting
       (update-by-setting setting))))
 
 (defn draw []
+  "Drawing handler."
   (qc/background-float 0)
   (qc/stroke-float 255)
   (qc/stroke-weight 5)
@@ -113,6 +116,7 @@ birds: %d"
   (update-world))
 
 (defn setup []
+  "Drawing setup."
   (qc/smooth)
   (qc/no-stroke)
   (qc/fill 226)
@@ -120,6 +124,7 @@ birds: %d"
 
 ; Create a new bird on a mouse press
 (defn mouse-pressed []
+  "Mouse handler."
   (let [x (+ 0.0 (qc/mouse-x))
         y (+ 0.0 (qc/mouse-y))
         vx (- 5.0 (rand-int 10))
