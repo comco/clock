@@ -9,26 +9,37 @@
 (def width 800)
 (def height 600)
 (def flock (mapv (partial apply make-bird)
-                     [[30.0 30.0 0.0 0.0]
-                      [35.0 35.0 0.0 0.0]
-                      [45.3 48.5 0.0 0.0]
-                      [26.0 45.0 0.0 0.0]
-                      [73.0 83.9 0.0 0.0]
-                      ]))
+                     [[30.0 30.0 0.0 0.0 2.0 0.03]
+                      [35.0 35.0 0.0 0.0 2.0 0.03]
+                      [45.3 48.5 0.0 0.0 2.0 0.03]
+                      [26.0 45.0 0.0 0.0 2.0 0.03]
+                      [73.0 83.9 0.0 0.0 2.0 0.03]]))
 
 (def world
   (atom {:width width
          :height height
-         :shape worlds/doughnut-world-shape
          :flock flock
-         :max-speed 10.0
-         :max-power 10.0
-         :separation-distance 50.0
-         :separation-coeff 3.0
-         :alignment-distance 50.0
-         :alignment-coeff 3.0
-         :cohesion-distance 300
-         :cohesion-coeff 2.0}))
+         :max-speed 2.0
+         :max-power 0.03
+         :separation-distance (* 25.0 25.0)
+         :separation-coeff 1.0
+         :alignment-distance (* 50.0 50.0)
+         :alignment-coeff 1.0
+         :cohesion-distance (* 50.0 50.0)
+         :cohesion-coeff 1.0}))
+
+(defn draw-bird [bird]
+  (let [p (bird :position)
+        v (vect/scale (bird :velocity) 3.0)]
+    (qc/fill 200 100)
+    (qc/stroke 255)
+    (qc/push-matrix)
+    (qc/translate (p :x) (p :y))
+    (qc/begin-shape :lines)
+    (qc/vertex 0 0)
+    (qc/vertex (v :x) (v :y))
+    (qc/end-shape)
+    (qc/pop-matrix))) 
 
 (defn draw-vertex [position]
   (qc/vertex (position :x) (position :y)))
@@ -42,10 +53,8 @@
   (qc/background-float 0)
   (qc/stroke-float 255)
   (qc/stroke-weight 5)
-  (qc/begin-shape :points)
   (doseq [bird (@world :flock)]
-    (draw-vertex (:position bird)))
-  (qc/end-shape)
+    (draw-bird bird))
   (qc/display-filter :invert)
   (update-world))
 
