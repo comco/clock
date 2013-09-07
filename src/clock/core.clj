@@ -33,7 +33,7 @@
 
 (defn draw-bird [bird]
   (let [p (bird :position)
-        v (vect/scale (bird :velocity) 3.0)]
+        v (vect/scale (bird :velocity) 2.0)]
     (qc/fill 200 100)
     (qc/stroke 255)
     (qc/push-matrix)
@@ -45,23 +45,23 @@
     (qc/pop-matrix))) 
 
 (defn update-world []
-  (let [old-flock (@world :flock)
-        new-flock (doall (pmap #(worlds/move-bird % @world) old-flock))]
-    (swap! world assoc :flock new-flock)))
+    (swap! world worlds/update-world))
 
 (defn settings-string []
-  "Retunrs a string with the current settings of the simulation."
   (format 
 "separation: distance (keys 's'/'S') = %.2f, coefficient (keys = 'e'/'E') %.2f
 alignment: distance (keys 'a'/'A') = %.2f, coefficient (keys = 'l'/'L') = %.2f
-cohesiton: distance (keys 'c'/'C') = %.2f, coefficient (keys = 'o'/'O') = %.2f"
-          (@world :separation-distance)
-          (@world :separation-coeff)
-          (@world :alignment-distance)
-          (@world :alignment-coeff)
-          (@world :cohesion-distance)
-          (@world :cohesion-coeff)))
+cohesiton: distance (keys 'c'/'C') = %.2f, coefficient (keys = 'o'/'O') = %.2f
+birds: %d"
+    (@world :separation-distance)
+    (@world :separation-coeff)
+    (@world :alignment-distance)
+    (@world :alignment-coeff)
+    (@world :cohesion-distance)
+    (@world :cohesion-coeff)
+    (count (@world :flock))))
 
+; Keys map
 (def valid-keys {\s {:key :separation-distance
                      :amount -20.0}
                  \S {:key :separation-distance 
@@ -94,6 +94,7 @@ cohesiton: distance (keys 'c'/'C') = %.2f, coefficient (keys = 'o'/'O') = %.2f"
          new-value (+ old-value (settings :amount))]
      (swap! world assoc (settings :key) new-value))))
 
+; Change the settings on a key press
 (defn key-pressed []
   (let [key-code (qc/raw-key)
         setting (valid-keys key-code)]
@@ -115,9 +116,9 @@ cohesiton: distance (keys 'c'/'C') = %.2f, coefficient (keys = 'o'/'O') = %.2f"
   (qc/smooth)
   (qc/no-stroke)
   (qc/fill 226)
-  (qc/frame-rate 10))
+  (qc/frame-rate 20))
 
-; Create a new bird
+; Create a new bird on a mouse press
 (defn mouse-pressed []
   (let [x (+ 0.0 (qc/mouse-x))
         y (+ 0.0 (qc/mouse-y))

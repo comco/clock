@@ -54,3 +54,10 @@
     (-> bird
         (update-bird acceleration)
         (position-bird world))))
+
+(defn update-world
+  "Moves the birds in the world."
+  [world]
+  (let [old-flock (world :flock)
+        new-flock (doall (pmap #(move-bird % world) old-flock))]
+    (assoc world :flock new-flock)))
