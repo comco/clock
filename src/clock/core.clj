@@ -90,10 +90,10 @@ birds: %d"
 
 (defn update-by-setting
   "Updates a world setting by a given amount"
-  ([settings]
-   (let [old-value (@world (settings :key))
-         new-value (+ old-value (settings :amount))]
-     (swap! world assoc (settings :key) new-value))))
+  [settings]
+  (let [old-value (@world (settings :key))
+        new-value (max 0.0 (+ old-value (settings :amount)))]
+    (swap! world assoc (settings :key) new-value)))
 
 ; Change the settings on a key press
 (defn key-pressed []
